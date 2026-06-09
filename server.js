@@ -23,9 +23,9 @@ let complaints = [
 ];
 
 const cctvCameras = [
-  { id: 'CCTV-01', name: 'Gerbang Utama Cluster', area: 'Foresta', status: 'Online', mockUrl: 'https://assets.mixkit.co/videos/preview/mixkit-traffic-in-a-crossroad-of-a-big-city-40748-large.mp4' },
-  { id: 'CCTV-02', name: 'Taman Bermain Anak', area: 'Foresta', status: 'Online', mockUrl: 'https://assets.mixkit.co/videos/preview/mixkit-children-playing-in-a-playground-43033-large.mp4' },
-  { id: 'CCTV-03', name: 'Persimpangan Utama BSD', area: 'BSD Boulevard', status: 'Online', mockUrl: 'https://assets.mixkit.co/videos/preview/mixkit-intersection-with-cars-and-traffic-lights-in-city-41617-large.mp4' },
+  { id: 'CCTV-01', name: 'Gerbang Utama Cluster', area: 'Foresta', status: 'Online', mockUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4' },
+  { id: 'CCTV-02', name: 'Taman Bermain Anak', area: 'Foresta', status: 'Online', mockUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4' },
+  { id: 'CCTV-03', name: 'Persimpangan Utama BSD', area: 'BSD Boulevard', status: 'Online', mockUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4' },
   { id: 'CCTV-04', name: 'Area Olahraga / Club House', area: 'The Breeze', status: 'Offline', mockUrl: '' }
 ];
 

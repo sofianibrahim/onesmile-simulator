@@ -286,6 +286,12 @@ function playCctv(camId) {
   cctvVideoPlayer.oncanplay = () => {
     cctvStatusOverlay.classList.add('hidden');
   };
+
+  cctvVideoPlayer.onerror = () => {
+    cctvStatusOverlay.classList.remove('hidden');
+    cctvStatusOverlay.innerHTML = '<i class="fa-solid fa-circle-exclamation" style="color: #ef4444; font-size: 24px;"></i><p>Gagal memuat kamera (RTO)</p>';
+    addLog(`CCTV Error loading stream: <strong>${cam.name}</strong>`, 'error');
+  };
 }
 
 // Update CCTV HUD Clock
