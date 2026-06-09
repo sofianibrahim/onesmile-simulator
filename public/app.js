@@ -270,11 +270,140 @@ function renderCctvList() {
   });
 }
 
+const cctvCanvasPlayer = document.getElementById('cctvCanvasPlayer');
+let canvasAnimationId = null;
+
+function startCanvasSimulation(camName) {
+  if (canvasAnimationId) {
+    cancelAnimationFrame(canvasAnimationId);
+  }
+  
+  cctvCanvasPlayer.width = 640;
+  cctvCanvasPlayer.height = 360;
+  const ctx = cctvCanvasPlayer.getContext('2d');
+  
+  let vehicles = [
+    { x: 50, y: 250, speed: 2, color: 'rgba(245, 158, 11, 0.7)', size: 20 },
+    { x: 400, y: 250, speed: 1.5, color: 'rgba(14, 165, 233, 0.7)', size: 18 },
+    { x: 200, y: 220, speed: -1, color: 'rgba(255, 255, 255, 0.6)', size: 15 }
+  ];
+
+  function drawFrame() {
+    if (cctvCanvasPlayer.classList.contains('hidden')) return;
+
+    const w = cctvCanvasPlayer.width;
+    const h = cctvCanvasPlayer.height;
+    
+    // Background Dark Slate
+    ctx.fillStyle = '#0f172a';
+    ctx.fillRect(0, 0, w, h);
+    
+    // Grid overlay / Road lines
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
+    ctx.lineWidth = 1;
+    for (let x = 0; x < w; x += 40) {
+      ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke();
+    }
+    for (let y = 0; y < h; y += 40) {
+      ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
+    }
+    
+    // Draw Simulated Road
+    ctx.fillStyle = '#1e293b';
+    ctx.beginPath();
+    ctx.moveTo(w * 0.1, h);
+    ctx.lineTo(w * 0.45, h * 0.4);
+    ctx.lineTo(w * 0.55, h * 0.4);
+    ctx.lineTo(w * 0.9, h);
+    ctx.fill();
+    
+    // Road center line
+    ctx.strokeStyle = 'rgba(245, 158, 11, 0.4)';
+    ctx.lineWidth = 2;
+    ctx.setLineDash([10, 10]);
+    ctx.beginPath();
+    ctx.moveTo(w * 0.5, h);
+    ctx.lineTo(w * 0.5, h * 0.4);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    
+    // Update and draw vehicles
+    vehicles.forEach(v => {
+      v.x += v.speed;
+      if (v.speed > 0 && v.x > w + 20) v.x = -20;
+      if (v.speed < 0 && v.x < -20) v.x = w + 20;
+      
+      const scale = 0.3 + (v.y / h) * 0.7;
+      const width = v.size * scale;
+      const height = (v.size * 0.6) * scale;
+      
+      ctx.fillStyle = v.color;
+      ctx.fillRect(v.x - width/2, v.y - height/2, width, height);
+    });
+
+    // Draw CCTV Viewfinder Corners
+    ctx.strokeStyle = '#10b981';
+    ctx.lineWidth = 2;
+    const pad = 24;
+    const len = 15;
+    
+    // Top Left
+    ctx.beginPath(); ctx.moveTo(pad, pad + len); ctx.lineTo(pad, pad); ctx.lineTo(pad + len, pad); ctx.stroke();
+    // Top Right
+    ctx.beginPath(); ctx.moveTo(w - pad, pad + len); ctx.lineTo(w - pad, pad); ctx.lineTo(w - pad - len, pad); ctx.stroke();
+    // Bottom Left
+    ctx.beginPath(); ctx.moveTo(pad, h - pad - len); ctx.lineTo(pad, h - pad); ctx.lineTo(pad + len, h - pad); ctx.stroke();
+    // Bottom Right
+    ctx.beginPath(); ctx.moveTo(w - pad, h - pad - len); ctx.lineTo(w - pad, h - pad); ctx.lineTo(w - pad - len, h - pad); ctx.stroke();
+
+    // Blink REC indicator
+    if (Math.floor(Date.now() / 600) % 2 === 0) {
+      ctx.fillStyle = '#ef4444';
+      ctx.beginPath();
+      ctx.arc(pad + 15, pad + 25, 5, 0, Math.PI * 2);
+      ctx.fill();
+      
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 11px Inter, sans-serif';
+      ctx.fillText('REC', pad + 26, pad + 29);
+    }
+    
+    // Text overlay: Cam Name & Info
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+    ctx.font = '10px monospace';
+    ctx.fillText(`CAM: ${camName.toUpperCase()}`, pad + 10, h - pad - 20);
+    ctx.fillText('FPS: 30.0 | ISO: 400 | MODE: OFFLINE SIMULATION', pad + 10, h - pad - 8);
+
+    // Scanlines
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.03)';
+    for (let i = 0; i < h; i += 3) {
+      ctx.fillRect(0, i, w, 1);
+    }
+    
+    // Grain
+    if (Math.random() < 0.1) {
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.05)';
+      ctx.fillRect(0, Math.random() * h, w, Math.random() * 3);
+    }
+
+    canvasAnimationId = requestAnimationFrame(drawFrame);
+  }
+  
+  drawFrame();
+}
+
 function playCctv(camId) {
   const cam = state.cctvList.find(c => c.id === camId);
   if (!cam) return;
 
   addLog(`Memutar CCTV: <strong>${cam.name}</strong>`, 'action');
+  
+  // Reset players visibility
+  cctvCanvasPlayer.classList.add('hidden');
+  cctvVideoPlayer.classList.remove('hidden');
+  if (canvasAnimationId) {
+    cancelAnimationFrame(canvasAnimationId);
+  }
   
   // Show spinner overlay
   cctvStatusOverlay.classList.remove('hidden');
@@ -288,9 +417,13 @@ function playCctv(camId) {
   };
 
   cctvVideoPlayer.onerror = () => {
-    cctvStatusOverlay.classList.remove('hidden');
-    cctvStatusOverlay.innerHTML = '<i class="fa-solid fa-circle-exclamation" style="color: #ef4444; font-size: 24px;"></i><p>Gagal memuat kamera (RTO)</p>';
-    addLog(`CCTV Error loading stream: <strong>${cam.name}</strong>`, 'error');
+    // Hide video, show canvas simulation
+    cctvVideoPlayer.classList.add('hidden');
+    cctvCanvasPlayer.classList.remove('hidden');
+    cctvStatusOverlay.classList.add('hidden'); // Hide loading overlay
+    
+    addLog(`CCTV: Gagal memuat stream video. Mengaktifkan simulasi grafis offline untuk <strong>${cam.name}</strong>`, 'system');
+    startCanvasSimulation(cam.name);
   };
 }
 
