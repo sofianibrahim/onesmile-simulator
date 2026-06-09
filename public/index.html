@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OneSmile BSD City - Web Simulator</title>
+  <!-- Google Fonts: Outfit and Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- FontAwesome for Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- CSS Styling -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Background Animated Gradient Shapes -->
+  <div class="bg-shape shape-1"></div>
+  <div class="bg-shape shape-2"></div>
+  <div class="bg-shape shape-3"></div>
+
+  <!-- Main Container -->
+  <main class="container">
+    
+    <!-- Sidebar Control Panel -->
+    <section class="sidebar">
+      <div class="sidebar-header">
+        <img src="https://onesmile.digital/images/onesmile-logo.png" alt="OneSmile Logo" class="brand-logo" onerror="this.src='https://onesmile.sinarmasland.com/assets/images/logo-onesmile.png'; this.onerror=null;">
+        <h1>OneSmile Simulator</h1>
+        <p class="subtitle">BSD City Citizen Companion App</p>
+      </div>
+
+      <div class="info-card">
+        <h3><i class="fa-solid fa-circle-info"></i> Tentang Simulator</h3>
+        <p>Aplikasi web simulator ini dibuat untuk meninjau antarmuka (UI) dan mensimulasikan fitur-fitur utama aplikasi <strong>OneSmile BSD City</strong> secara interaktif di browser Anda.</p>
+      </div>
+
+      <div class="control-group">
+        <h3><i class="fa-solid fa-sliders"></i> Panel Kontrol</h3>
+        <button id="toggleThemeBtn" class="control-btn"><i class="fa-solid fa-moon"></i> Ganti Tema Gelap/Terang</button>
+        <button id="toggleNotchBtn" class="control-btn"><i class="fa-solid fa-mobile-screen-button"></i> Sembunyikan Notch Ponsel</button>
+        <button id="resetDemoBtn" class="control-btn secondary-btn"><i class="fa-solid fa-rotate-left"></i> Reset Simulasi</button>
+      </div>
+
+      <div class="logs-card">
+        <h3><i class="fa-solid fa-terminal"></i> Log Aktivitas</h3>
+        <div id="logsContainer" class="logs-container">
+          <div class="log-entry system">[System] Simulator diinisialisasi. Siap digunakan!</div>
+        </div>
+      </div>
+
+      <div class="sidebar-footer">
+        <p>Developed with ❤️ for BSD City Training</p>
+      </div>
+    </section>
+
+    <!-- Mobile Device Simulator Wrapper -->
+    <section class="simulator-wrapper">
+      <div class="smartphone-device" id="phoneDevice">
+        
+        <!-- Camera Notch / Dynamic Island -->
+        <div class="phone-notch" id="phoneNotch"></div>
+        
+        <!-- Status Bar -->
+        <div class="phone-status-bar">
+          <span class="status-time" id="statusTime">14:20</span>
+          <div class="status-icons">
+            <i class="fa-solid fa-wifi"></i>
+            <i class="fa-solid fa-signal"></i>
+            <i class="fa-solid fa-battery-three-quarters"></i>
+          </div>
+        </div>
+
+        <!-- Phone screen inner container -->
+        <div class="phone-screen" id="phoneScreen">
+
+          <!-- PAGE 1: SPLASH SCREEN (Initial state) -->
+          <div class="screen-page active" id="pageSplash">
+            <div class="splash-content">
+              <div class="splash-logo-wrapper">
+                <i class="fa-solid fa-smile splash-icon"></i>
+                <h2>one<span>smile</span></h2>
+              </div>
+              <p class="splash-tagline">Connecting BSD City Citizens</p>
+              <div class="spinner"></div>
+            </div>
+          </div>
+
+          <!-- PAGE 2: LOGIN PAGE -->
+          <div class="screen-page" id="pageLogin">
+            <div class="login-header">
+              <h2>Selamat Datang!</h2>
+              <p>Masuk menggunakan nomor HP terdaftar Anda</p>
+            </div>
+            
+            <form id="loginForm" class="login-form">
+              <div class="form-group-phone">
+                <label for="phoneNumber">Nomor Handphone</label>
+                <div class="input-phone-wrapper">
+                  <span class="country-code">+62</span>
+                  <input type="tel" id="phoneNumber" placeholder="8123456789" required autocomplete="off">
+                </div>
+              </div>
+              
+              <button type="submit" class="submit-btn">Kirim OTP</button>
+            </form>
+
+            <div id="otpSection" class="otp-section hidden">
+              <p class="otp-instruction">Masukkan 4 digit kode verifikasi (OTP) yang dikirim ke nomor Anda</p>
+              <div class="otp-inputs">
+                <input type="text" maxlength="1" class="otp-box" required pattern="[0-9]">
+                <input type="text" maxlength="1" class="otp-box" required pattern="[0-9]">
+                <input type="text" maxlength="1" class="otp-box" required pattern="[0-9]">
+                <input type="text" maxlength="1" class="otp-box" required pattern="[0-9]">
+              </div>
+              <button id="verifyOtpBtn" class="submit-btn verify-btn">Verifikasi & Masuk</button>
+              <p class="otp-resend">Tidak menerima kode? <a href="#" id="resendOtpLink">Kirim Ulang</a></p>
+            </div>
+
+            <div class="login-footer">
+              <p>Belum terdaftar? <a href="#" class="accent-link">Daftar Akun Baru</a></p>
+            </div>
+          </div>
+
+          <!-- PAGE 3: HOME DASHBOARD -->
+          <div class="screen-page" id="pageHome">
+            <!-- Home Header -->
+            <div class="home-header">
+              <div class="user-profile-section">
+                <div class="user-avatar"><i class="fa-solid fa-user"></i></div>
+                <div class="user-details">
+                  <span class="greeting">Halo, Warga BSD!</span>
+                  <span class="user-phone" id="userDisplayPhone">+62 812 3456 789</span>
+                </div>
+              </div>
+              <div class="header-notification">
+                <i class="fa-regular fa-bell"></i>
+                <span class="notification-badge"></span>
+              </div>
+            </div>
+
+            <!-- Home Balance/Card Section -->
+            <div class="balance-card">
+              <div class="balance-top">
+                <span class="balance-title"><i class="fa-solid fa-wallet"></i> Saldo Dompet</span>
+                <span class="point-title"><i class="fa-solid fa-coins"></i> Poin Anda</span>
+              </div>
+              <div class="balance-values">
+                <span class="balance-val">Rp 1.250.000</span>
+                <span class="point-val">450 Poin</span>
+              </div>
+              <div class="balance-quick-actions">
+                <button><i class="fa-solid fa-arrow-up-from-bracket"></i> Top Up</button>
+                <button><i class="fa-solid fa-qrcode"></i> Scan QR</button>
+                <button><i class="fa-solid fa-clock-rotate-left"></i> Riwayat</button>
+              </div>
+            </div>
+
+            <!-- Scrollable Features Area -->
+            <div class="scrollable-home-content">
+              <!-- Grid Menu -->
+              <h3 class="section-title">Layanan Warga BSD</h3>
+              <div class="features-grid">
+                <div class="grid-item" id="menuIpl">
+                  <div class="icon-box ipl"><i class="fa-solid fa-file-invoice-dollar"></i></div>
+                  <span>Bayar IPL</span>
+                </div>
+                <div class="grid-item" id="menuCctv">
+                  <div class="icon-box cctv"><i class="fa-solid fa-video"></i></div>
+                  <span>CCTV BSD</span>
+                </div>
+                <div class="grid-item" id="menuLapor">
+                  <div class="icon-box lapor"><i class="fa-solid fa-circle-exclamation"></i></div>
+                  <span>Lapor / Complain</span>
+                </div>
+                <div class="grid-item" id="menuBsdlink">
+                  <div class="icon-box bsdlink"><i class="fa-solid fa-bus"></i></div>
+                  <span>BSD Link</span>
+                </div>
+                <div class="grid-item">
+                  <div class="icon-box info"><i class="fa-solid fa-bullhorn"></i></div>
+                  <span>Informasi</span>
+                </div>
+                <div class="grid-item">
+                  <div class="icon-box market"><i class="fa-solid fa-shop"></i></div>
+                  <span>Marketplace</span>
+                </div>
+              </div>
+
+              <!-- Promo/News Carousel -->
+              <h3 class="section-title">Kabar BSD Terkini</h3>
+              <div class="news-banner">
+                <div class="banner-gradient"></div>
+                <div class="banner-text">
+                  <h4>Festival Kuliner BSD 2026</h4>
+                  <p>Hadir di The Breeze dengan diskon pembayaran menggunakan OneSmile!</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- PAGE 4: CCTV BSD SCREEN -->
+          <div class="screen-page" id="pageCctv">
+            <div class="page-title-bar">
+              <button class="back-to-home-btn"><i class="fa-solid fa-chevron-left"></i></button>
+              <h2>Pantau CCTV BSD</h2>
+            </div>
+            
+            <div class="cctv-player-container">
+              <div class="video-overlay" id="cctvStatusOverlay">
+                <i class="fa-solid fa-spinner fa-spin"></i>
+                <p>Memuat Video...</p>
+              </div>
+              <video id="cctvVideoPlayer" autoplay muted loop playsinline></video>
+              <div class="cctv-hud">
+                <span class="cctv-hud-name" id="cctvHudName">Nama Kamera</span>
+                <span class="cctv-hud-time" id="cctvHudTime">LIVE 14:20:00</span>
+              </div>
+            </div>
+
+            <div class="cctv-list-container">
+              <h3 class="section-title">Daftar Kamera Tersedia</h3>
+              <div id="cctvList" class="cctv-list">
+                <!-- CCTV Camera Items injected via JS -->
+              </div>
+            </div>
+          </div>
+
+          <!-- PAGE 5: IPL BILLING SCREEN -->
+          <div class="screen-page" id="pageIpl">
+            <div class="page-title-bar">
+              <button class="back-to-home-btn"><i class="fa-solid fa-chevron-left"></i></button>
+              <h2>Pembayaran IPL</h2>
+            </div>
+
+            <div class="ipl-container">
+              <!-- Tab Menu -->
+              <div class="ipl-tabs">
+                <button class="tab-btn active" data-status="unpaid">Belum Bayar</button>
+                <button class="tab-btn" data-status="paid">Riwayat Lunas</button>
+              </div>
+
+              <!-- Bills List -->
+              <div class="ipl-bills-list" id="iplBillsList">
+                <!-- Bills items injected via JS -->
+              </div>
+            </div>
+          </div>
+
+          <!-- PAGE 6: COMPLAIN TRACKER SCREEN -->
+          <div class="screen-page" id="pageLapor">
+            <div class="page-title-bar">
+              <button class="back-to-home-btn"><i class="fa-solid fa-chevron-left"></i></button>
+              <h2>Lapor / Pengaduan</h2>
+            </div>
+
+            <div class="lapor-container">
+              <!-- Toggle buttons -->
+              <div class="lapor-toggle">
+                <button class="lapor-toggle-btn active" id="toggleNewLapor">Buat Laporan</button>
+                <button class="lapor-toggle-btn" id="toggleListLapor">Daftar Laporan</button>
+              </div>
+
+              <!-- Form Buat Laporan -->
+              <div class="lapor-form-view" id="laporFormView">
+                <form id="complaintForm">
+                  <div class="form-group">
+                    <label for="complaintTitle">Judul Masalah</label>
+                    <input type="text" id="complaintTitle" placeholder="Contoh: Air PAM mati, Pagar rusak" required autocomplete="off">
+                  </div>
+                  
+                  <div class="form-group">
+                    <label for="complaintCategory">Kategori</label>
+                    <select id="complaintCategory" required>
+                      <option value="" disabled selected>Pilih Kategori</option>
+                      <option value="Fasilitas Umum">Fasilitas Umum</option>
+                      <option value="Keamanan">Keamanan</option>
+                      <option value="Kebersihan">Kebersihan / Lingkungan</option>
+                      <option value="Infrastruktur">Infrastruktur Jalan/Saluran</option>
+                    </select>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="complaintDesc">Deskripsi Masalah</label>
+                    <textarea id="complaintDesc" rows="4" placeholder="Jelaskan secara rinci lokasi dan kronologi masalah..." required></textarea>
+                  </div>
+
+                  <button type="submit" class="submit-btn lapor-submit-btn">Kirim Laporan</button>
+                </form>
+              </div>
+
+              <!-- List Laporan Saya -->
+              <div class="lapor-list-view hidden" id="laporListView">
+                <div class="complaints-list" id="complaintsList">
+                  <!-- Complaints injected via JS -->
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Phone Bottom Navigation Bar (Hidden on Splash and Login Pages) -->
+          <nav class="phone-nav-bar hidden" id="phoneNavBar">
+            <div class="nav-item active" data-page="pageHome">
+              <i class="fa-solid fa-house"></i>
+              <span>Beranda</span>
+            </div>
+            <div class="nav-item" data-page="pageCctv">
+              <i class="fa-solid fa-video"></i>
+              <span>CCTV</span>
+            </div>
+            <div class="nav-item" data-page="pageIpl">
+              <i class="fa-solid fa-file-invoice-dollar"></i>
+              <span>IPL</span>
+            </div>
+            <div class="nav-item" data-page="pageLapor">
+              <i class="fa-solid fa-circle-exclamation"></i>
+              <span>Lapor</span>
+            </div>
+          </nav>
+
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Interactive Toast Notification -->
+  <div id="toastNotification" class="toast hidden">
+    <div class="toast-content">
+      <i class="fa-solid fa-circle-check toast-icon"></i>
+      <span class="toast-message">Notifikasi berhasil!</span>
+    </div>
+  </div>
+
+  <!-- JavaScript App Logic -->
+  <script src="app.js"></script>
+</body>
+</html>
